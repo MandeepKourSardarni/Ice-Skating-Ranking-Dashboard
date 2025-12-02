@@ -552,12 +552,14 @@ function resetGroup(){
 }
 
 function resetAll(){
-    if(!confirm("Reset ALL groups?"))return;
+    if (!confirm("Reset all groups?")) return;
     ["Alpha","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","Hotel","India"]
-        .forEach(g=>groups[g]={skaters:[],history:{}});
+        .forEach(g => groups[g] = { skaters:[], history:{} });
+
     saveData();
     loadGroupTable();
 }
+
 
 /* --------------------------------------------------
       ADD SKATERS
