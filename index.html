@@ -4,11 +4,9 @@
 <title>Ice Skating Short Track Ranking Dashboard</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-
 /* -----------------------------------------------------------
    GLOBAL + BACKGROUND
 ------------------------------------------------------------ */
@@ -98,6 +96,7 @@ input, select {
 button {
     background:#007bff;
     color:white;
+    cursor:pointer;
 }
 
 button:hover {
@@ -130,6 +129,7 @@ table {
     border-collapse:collapse;
     background:rgba(255,255,255,0.08);
     border-radius:14px;
+    overflow:hidden;
     display:none; /* HIDDEN ON MOBILE */
 }
 
@@ -142,6 +142,11 @@ th, td {
 th {
     background:rgba(0,80,140,0.8);
     font-size:16px;
+}
+
+td.name {
+    text-align:left;
+    padding-left:12px;
 }
 
 /* -----------------------------------------------------------
@@ -167,6 +172,7 @@ th {
     margin:0 0 8px 0;
     font-size:18px;
     text-shadow:0 0 6px rgba(0,150,255,0.8);
+    cursor:pointer;
 }
 
 .card-row {
@@ -230,10 +236,8 @@ th {
 @media(min-width:768px){
     table { display:table; }
     #mobileCards { display:none; }
-
     .control-row { flex-direction:row; }
 }
-
 </style>
 </head>
 
@@ -246,10 +250,7 @@ th {
     <h1>Ice Skating Short Track Ranking Dashboard</h1>
 </div>
 
-
-<!-- -----------------------------------------------------------
-     CONTROL PANEL
------------------------------------------------------------- -->
+<!-- CONTROL PANEL -->
 <div class="control-row">
 
     <!-- Column 1 -->
@@ -279,9 +280,7 @@ th {
 
 </div>
 
-<!-- -----------------------------------------------------------
-     GROUP SELECT
------------------------------------------------------------- -->
+<!-- GROUP SELECT -->
 <div class="viewBar">
     <label style="font-size:17px;font-weight:bold;">Select Group to View Scoreboard</label><br>
     <select id="viewGroupSelect" onchange="switchGroup()" style="width:220px;margin-top:6px;">
@@ -291,9 +290,7 @@ th {
     </select>
 </div>
 
-<!-- -----------------------------------------------------------
-     DESKTOP TABLE
------------------------------------------------------------- -->
+<!-- DESKTOP TABLE -->
 <table id="scoreTable">
     <thead>
         <tr>
@@ -305,14 +302,10 @@ th {
     <tbody></tbody>
 </table>
 
-<!-- -----------------------------------------------------------
-     MOBILE CARD VIEW
------------------------------------------------------------- -->
+<!-- MOBILE CARDS -->
 <div id="mobileCards"></div>
 
-<!-- -----------------------------------------------------------
-     NAME EDIT POPUP
------------------------------------------------------------- -->
+<!-- NAME EDIT POPUP -->
 <div id="nameEditPopup">
     <h3>Edit Name</h3>
     <input id="nameEditInput">
@@ -320,9 +313,7 @@ th {
     <button class="danger" onclick="closeNamePopup()">Cancel</button>
 </div>
 
-<!-- -----------------------------------------------------------
-     EXCEL ERROR POPUP
------------------------------------------------------------- -->
+<!-- EXCEL ERROR POPUP -->
 <div id="excelErrorPopup">
     <p style="font-size:16px;">
         <b><i>Sorry — Excel file didn’t upload properly.<br><br>
@@ -331,45 +322,33 @@ th {
     <button onclick="closeExcelErrorPopup()" style="margin-top:10px;">Close</button>
 </div>
 
-<!-- -----------------------------------------------------------
-     HELP POPUP
------------------------------------------------------------- -->
-<div id="helpPopup" style="display:none;">
-    <div style="padding:20px; background:#002a4c; border-radius:12px;">
+<!-- HELP POPUP -->
+<div id="helpPopup" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; display:none; align-items:center; justify-content:center; z-index:250; background:rgba(0,0,0,0.6);">
+    <div style="padding:20px; background:#002a4c; border-radius:12px; max-width:420px; width:90%; color:white;">
         <h2>Instructions</h2>
-
-        <p>• Upload Excel sheet (sheet name must be “Divisions”).</p>
-        <p>• Or add names manually + select group.</p>
-        <p>• Tap a name to edit it anytime.</p>
-        <p>• Enter race positions — points calculate instantly.</p>
-        <p>• Rankings & medals update automatically.</p>
-        <p>• Undo reverses only the last change.</p>
-        <p>• Delete removes the skater completely.</p>
-        <p>• Reset Group clears only the selected group.</p>
-        <p>• Reset All wipes everything (use carefully).</p>
-        <p>• All progress auto-saves (LocalStorage).</p>
-
+        <p>• Upload Excel (“Divisions” sheet) or add names manually.</p>
+        <p>• Choose the correct group (Alpha–India) before adding names.</p>
+        <p>• Tap/click any name to edit it if needed.</p>
+        <p>• Select race positions for 400, 500, 800, 1000, 1500.</p>
+        <p>• Scores, ranks, and medals update automatically.</p>
+        <p>• Undo reverses the last change for that skater.</p>
+        <p>• Delete removes a skater and their scores.</p>
+        <p>• Reset Group clears only the current group.</p>
+        <p>• Reset All clears all groups (use carefully).</p>
+        <p>• Everything is auto-saved in your browser (LocalStorage).</p>
         <button onclick="closeHelp()" style="margin-top:14px;">Close</button>
     </div>
 </div>
 
 <script>
-
-/* -----------------------------------------------------------
-   SAME JS LOGIC FROM YOUR PREVIOUS VERSION + NEW UPDATES
-   — Auto-sort
-   — Ties
-   — Medals
-   — Editable Names
-   — Mobile Card View
------------------------------------------------------------- */
-
+// DATA + CONFIG
 let groups={};
 ["Alpha","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","Hotel","India"]
 .forEach(g=>groups[g]={skaters:[],history:{}});
 
-if(localStorage.getItem("groupsData"))
+if(localStorage.getItem("groupsData")){
     groups=JSON.parse(localStorage.getItem("groupsData"));
+}
 
 let currentGroup="Alpha";
 const distances=["400","500","800","1000","1500"];
@@ -379,27 +358,37 @@ const points={1:1000,2:816,3:666,4:543,5:443,6:362,7:295,8:241,9:196,10:160,
 
 const validGroups=["ALPHA","BRAVO","CHARLIE","DELTA","ECHO","FOXTROT","GOLF","HOTEL","INDIA"];
 
-function saveData(){localStorage.setItem("groupsData",JSON.stringify(groups));}
+function saveData(){ localStorage.setItem("groupsData",JSON.stringify(groups)); }
 
-function switchGroup(){ currentGroup=document.getElementById("viewGroupSelect").value; loadGroup(); }
+// GROUP SWITCH
+function switchGroup(){
+    currentGroup=document.getElementById("viewGroupSelect").value;
+    loadGroup();
+}
 
+// RESET
 function resetGroup(){
     if(!confirm("Reset this group?")) return;
     groups[currentGroup]={skaters:[],history:{}};
-    saveData(); loadGroup();
+    saveData();
+    loadGroup();
 }
 
 function resetAll(){
     if(!confirm("Reset ALL groups?")) return;
     ["Alpha","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","Hotel","India"]
     .forEach(g=>groups[g]={skaters:[],history:{}});
-    saveData(); loadGroup();
+    saveData();
+    loadGroup();
 }
 
+// NAME CLEANER
 function cleanName(n){
+    if(!n) return "";
     return n.replace(/[0-9]/g,"").replace(/\s+/g," ").trim();
 }
 
+// MANUAL ADD
 function addManual(){
     let name=cleanName(document.getElementById("skaterName").value.trim());
     if(!name) return;
@@ -418,6 +407,7 @@ function addSkater(name,group){
     if(group===currentGroup) loadGroup();
 }
 
+// EXCEL UPLOAD
 function uploadExcel(){
     let file=document.getElementById("excelFile").files[0];
     if(!file){ alert("Select Excel file"); return; }
@@ -465,7 +455,7 @@ function uploadExcel(){
         }
 
         if(added===0) showExcelErrorPopup();
-        else{ saveData(); loadGroup(); }
+        else { saveData(); loadGroup(); }
     };
 
     reader.readAsArrayBuffer(file);
@@ -474,17 +464,18 @@ function uploadExcel(){
 function isName(x){
     if(!x||typeof x!=="string") return false;
     x=x.trim();
-    return x.length>1 && /^[A-Za-zÀ-ÿ ' -]+$/.test(x);
+    if(x.length<2) return false;
+    return /^[A-Za-zÀ-ÿ ' -]+$/.test(x);
 }
 
-/* -----------------------------------------------------------
-   LOAD GROUP — BUILDS BOTH DESKTOP TABLE + MOBILE CARDS
------------------------------------------------------------- */
+// LOAD GROUP (TABLE + CARDS)
 function loadGroup(){
     loadTable();
     loadMobileCards();
+    updateScores();
 }
 
+// TABLE BUILD
 function loadTable(){
     let tbody=document.querySelector("#scoreTable tbody");
     tbody.innerHTML="";
@@ -504,16 +495,25 @@ function loadTable(){
 
         distances.forEach((dist,i)=>{
             let cell=row.children[i+1];
-            cell.append(selectDropdown(name,dist));
+            cell.appendChild(createDropdown(name,dist));
         });
 
         tbody.appendChild(row);
     });
-
-    rebuildDropdowns();
-    updateScores();
 }
 
+// DROPDOWN (DESKTOP/TABLE)
+function createDropdown(name,dist){
+    let dd=document.createElement("select");
+    dd.className="position";
+    dd.innerHTML=`<option value="">-</option>`;
+    let count=groups[currentGroup].skaters.length;
+    for(let i=1;i<=count;i++) dd.innerHTML+=`<option>${i}</option>`;
+    dd.onchange=()=>storeHistory(name,dist,dd);
+    return dd;
+}
+
+// MOBILE CARDS
 function loadMobileCards(){
     let box=document.getElementById("mobileCards");
     box.innerHTML="";
@@ -528,7 +528,7 @@ function loadMobileCards(){
             scoreHTML+=`
                 <div class="card-row">
                     <span>${dist}m</span>
-                    <span>${createMobileDropdown(name,dist)}</span>
+                    <span>${createMobileDropdownHTML(name,dist)}</span>
                 </div>
             `;
         });
@@ -538,7 +538,6 @@ function loadMobileCards(){
             ${scoreHTML}
             <div class="card-row"><b>Total</b><span class="total">0</span></div>
             <div class="card-row"><b>Rank</b><span class="rank">-</span></div>
-
             <button onclick="undo('${name}')">Undo</button>
             <button class="danger" onclick="del('${name}')">Delete</button>
         `;
@@ -546,20 +545,11 @@ function loadMobileCards(){
         box.appendChild(card);
     });
 
-    updateScores();
+    rebuildDropdowns(); // sync positions options
 }
 
-function selectDropdown(name,dist){
-    let dd=document.createElement("select");
-    dd.className="position";
-    dd.innerHTML=`<option value="">-</option>`;
-    let count=groups[currentGroup].skaters.length;
-    for(let i=1;i<=count;i++) dd.innerHTML+=`<option>${i}</option>`;
-    dd.onchange=()=>storeHistory(name,dist,dd);
-    return dd;
-}
-
-function createMobileDropdown(name,dist){
+// MOBILE SELECT HTML
+function createMobileDropdownHTML(name,dist){
     let count=groups[currentGroup].skaters.length;
     let html=`<select class="mPos" data-name="${name}" data-dist="${dist}" onchange="mobileScoreChange(this)">`;
     html+=`<option value="">-</option>`;
@@ -568,26 +558,34 @@ function createMobileDropdown(name,dist){
     return html;
 }
 
+// WHEN MOBILE SELECT CHANGES → UPDATE TABLE SELECT + HISTORY
 function mobileScoreChange(el){
     let name=el.dataset.name;
     let dist=el.dataset.dist;
     let val=el.value;
 
-    let hist=groups[currentGroup].history[name][dist];
-    hist.push(el.getAttribute("data-last")||"");
+    let row=document.querySelector(`#scoreTable tbody tr[data-name="${name}"]`);
+    if(row){
+        let idx=distances.indexOf(dist);
+        let dd=row.querySelectorAll("select.position")[idx];
+        if(dd){
+            dd.value=val;
+            storeHistory(name,dist,dd);
+        }
+    }
     el.setAttribute("data-last",val);
-
-    updateScores();
-    saveData();
 }
 
+// HISTORY STORE FOR UNDO
 function storeHistory(name,dist,dd){
-    groups[currentGroup].history[name][dist].push(dd.getAttribute("data-last")||"");
+    let hist=groups[currentGroup].history[name][dist];
+    hist.push(dd.getAttribute("data-last")||"");
     dd.setAttribute("data-last",dd.value);
     updateScores();
     saveData();
 }
 
+// REBUILD DROPDOWNS OPTION COUNT AFTER ADD/DELETE
 function rebuildDropdowns(){
     let count=groups[currentGroup].skaters.length;
     document.querySelectorAll("select.position, select.mPos").forEach(dd=>{
@@ -599,84 +597,147 @@ function rebuildDropdowns(){
 }
 
 /* -----------------------------------------------------------
-   SCORE UPDATE + SORT + MEDALS + TIES
+   SCORE UPDATE + SORT + MEDALS WITH TIES
 ------------------------------------------------------------ */
 function updateScores(){
-    let allRows=document.querySelectorAll("#scoreTable tbody tr, #mobileCards .card");
+    const tableRows=[...document.querySelectorAll("#scoreTable tbody tr")];
     let anyScore=false;
 
-    allRows.forEach(row=>{
+    // Calculate totals from table selects only
+    tableRows.forEach(row=>{
         let total=0;
-
-        if(row.querySelectorAll("select.position").length){
-            row.querySelectorAll("select.position").forEach(dd=>{
-                let pos=Number(dd.value);
-                if(points[pos]) total+=points[pos];
-            });
-        } else {
-            row.querySelectorAll("select.mPos").forEach(dd=>{
-                let pos=Number(dd.value);
-                if(points[pos]) total+=points[pos];
-            });
-        }
-
+        row.querySelectorAll("select.position").forEach(dd=>{
+            let pos=Number(dd.value);
+            if(points[pos]) total+=points[pos];
+        });
         row.querySelector(".total").textContent=total;
         if(total>0) anyScore=true;
     });
 
     if(!anyScore){
         resetRanks();
+        syncMobileFromTable();
         return;
     }
 
-    applyRanking();
+    applyRanking();      // ranks + medals only for >0 scores
+    syncMobileFromTable();
 }
 
+// Clear ranks & medals (no scores)
 function resetRanks(){
-    document.querySelectorAll(".rank").forEach(r=>r.textContent="-");
-    document.querySelectorAll(".name").forEach(n=>{
-        n.textContent=n.textContent.replace(/🥇|🥈|🥉/g,"");
+    document.querySelectorAll("#scoreTable tbody tr").forEach(row=>{
+        row.querySelector(".rank").textContent="-";
+        row.querySelector(".name").textContent=row.dataset.name;
     });
 }
 
-function applyRanking() {
-    let rows = [...document.querySelectorAll("#scoreTable tbody tr")];
+// Ranking + medals with ties
+function applyRanking(){
+    const tbody=document.querySelector("#scoreTable tbody");
+    let rows=[...tbody.querySelectorAll("tr")];
 
-    // Separate scored vs non-scored skaters
-    let scored = rows.filter(r => Number(r.querySelector(".total").textContent) > 0);
-    let zeroScore = rows.filter(r => Number(r.querySelector(".total").textContent) === 0);
+    // Build array with totals
+    let withTotals=rows.map(row=>({
+        row,
+        total:Number(row.querySelector(".total").textContent)
+    }));
 
-    // Sort only scored skaters
-    scored.sort((a, b) =>
-        Number(b.querySelector(".total").textContent) -
-        Number(a.querySelector(".total").textContent)
-    );
+    // Sort all rows by total (high → low)
+    withTotals.sort((a,b)=>b.total - a.total);
 
-    // Assign ranks + medals only to scored skaters
-    let lastScore = null;
-    let lastRank = 0;
+    // Non-zero only for ranking and medals
+    let nonZero=withTotals.filter(o=>o.total>0);
+    if(nonZero.length===0){
+        resetRanks();
+        return;
+    }
 
-    scored.forEach((row, index) => {
-        let total = Number(row.querySelector(".total").textContent);
+    // Unique score tiers for medals (dense ranking)
+    let uniqueScores=[];
+    nonZero.forEach(o=>{
+        if(!uniqueScores.includes(o.total)) uniqueScores.push(o.total);
+    });
 
+    // Reorder rows in DOM according to sorted totals
+    withTotals.forEach(o=>tbody.appendChild(o.row));
+
+    // Reset all names & ranks first
+    rows.forEach(row=>{
+        row.querySelector(".name").textContent=row.dataset.name;
+        row.querySelector(".rank").textContent="-";
+    });
+
+    // Assign ranks & medals for non-zero only
+    nonZero.forEach(o=>{
+        const row=o.row;
+        const score=o.total;
+        const tierIndex=uniqueScores.indexOf(score); // 0,1,2,...
+        const displayRank=tierIndex+1;
+
+        const nameCell=row.querySelector(".name");
+        const raw=row.dataset.name;
+
+        row.querySelector(".rank").textContent=displayRank;
+
+        if(tierIndex===0){
+            nameCell.innerHTML=`🥇 ${raw}`;
+        } else if(tierIndex===1){
+            nameCell.innerHTML=`🥈 ${raw}`;
+        } else if(tierIndex===2){
+            nameCell.innerHTML=`🥉 ${raw}`;
+        } else {
+            nameCell.textContent=raw; // no medal
+        }
+    });
+}
+
+// Sync totals, rank & name (with medals) into mobile cards
+function syncMobileFromTable(){
+    const cards=[...document.querySelectorAll("#mobileCards .card")];
+    cards.forEach(card=>{
+        const name=card.dataset.name;
+        const row=document.querySelector(`#scoreTable tbody tr[data-name="${name}"]`);
+        if(!row) return;
+
+        const total=row.querySelector(".total").textContent;
+        const rank=row.querySelector(".rank").textContent;
+        const nameHTML=row.querySelector(".name").innerHTML;
+
+        card.querySelector(".total").textContent=total;
+        card.querySelector(".rank").textContent=rank;
+        card.querySelector("h3").innerHTML=nameHTML;
+    });
+}
 
 /* -----------------------------------------------------------
-   UNDO / DELETE
+   UNDO + DELETE
 ------------------------------------------------------------ */
 function undo(name){
     let g=groups[currentGroup];
     let hist=g.history[name];
-
-    distances.forEach((dist,i)=>{
+    distances.forEach(dist=>{
         let stack=hist[dist];
         if(stack.length>0){
             let prev=stack.pop();
 
-            let ddDesktop=document.querySelector(`tr[data-name="${name}"] select.position:nth-child(${i+1})`);
-            let ddMobile=document.querySelector(`.card[data-name="${name}"] select.mPos[data-dist="${dist}"]`);
+            // desktop
+            let row=document.querySelector(`#scoreTable tbody tr[data-name="${name}"]`);
+            if(row){
+                let idx=distances.indexOf(dist);
+                let dd=row.querySelectorAll("select.position")[idx];
+                if(dd){
+                    dd.value=prev || "";
+                    dd.setAttribute("data-last",prev || "");
+                }
+            }
 
-            if(ddDesktop){ ddDesktop.value=prev || ""; ddDesktop.setAttribute("data-last",prev||""); }
-            if(ddMobile){ ddMobile.value=prev || ""; ddMobile.setAttribute("data-last",prev||""); }
+            // mobile
+            let mdd=document.querySelector(`.card[data-name="${name}"] select.mPos[data-dist="${dist}"]`);
+            if(mdd){
+                mdd.value=prev || "";
+                mdd.setAttribute("data-last",prev || "");
+            }
         }
     });
 
@@ -712,7 +773,6 @@ function saveNameEdit(){
     if(!newName) return;
 
     let g=groups[currentGroup];
-
     let idx=g.skaters.indexOf(editTarget);
     if(idx>-1) g.skaters[idx]=newName;
 
@@ -725,7 +785,7 @@ function saveNameEdit(){
 }
 
 /* -----------------------------------------------------------
-   ERROR POPUP
+   POPUPS (ERROR + HELP)
 ------------------------------------------------------------ */
 function showExcelErrorPopup(){
     let p=document.getElementById("excelErrorPopup");
@@ -737,13 +797,16 @@ function closeExcelErrorPopup(){
     document.getElementById("excelErrorPopup").style.display="none";
 }
 
-/* HELP */
-function openHelp(){ document.getElementById("helpPopup").style.display="block"; }
-function closeHelp(){ document.getElementById("helpPopup").style.display="none"; }
+function openHelp(){
+    document.getElementById("helpPopup").style.display="flex";
+}
+function closeHelp(){
+    document.getElementById("helpPopup").style.display="none";
+}
 
 /* INIT */
 loadGroup();
-
 </script>
+
 </body>
 </html>
