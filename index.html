@@ -554,48 +554,60 @@ function rebuildDropdowns(){
 /* ------------------------------------------------------
       SCORES + RANKING + MEDALS
 -------------------------------------------------------*/
-function updateScores(){
-    let rows = document.querySelectorAll("#scoreTable tbody tr");
-    let anyScore = false;
 
-    rows.forEach(row=>{
+function updateScores() {
+    let tbody = document.querySelector("#scoreTable tbody");
+    let rows = [...tbody.querySelectorAll("tr")];
+
+    // STEP 1 — Compute scores
+    rows.forEach(row => {
         let total = 0;
-
-        row.querySelectorAll("select.position").forEach(dd=>{
+        row.querySelectorAll("select.position").forEach(dd => {
             let pos = Number(dd.value);
             if (points[pos]) total += points[pos];
         });
-
         row.querySelector(".total").textContent = total;
-        if (total > 0) anyScore = true;
     });
 
-    if (!anyScore){
-        rows.forEach(row=>{
-            row.querySelector(".name").innerHTML =
-                row.dataset.name;
-            row.querySelector(".rank").textContent = "-";
-        });
-        return;
-    }
+    // STEP 2 — Split into 2 groups: scored and unscored
+    let scored = rows.filter(r => Number(r.querySelector(".total").textContent) > 0);
+    let unscored = rows.filter(r => Number(r.querySelector(".total").textContent) === 0);
 
-    let sorted = [...rows].sort((a,b)=>
-        b.querySelector(".total").textContent - a.querySelector(".total").textContent
+    // STEP 3 — Sort only scored rows
+    scored.sort((a, b) =>
+        Number(b.querySelector(".total").textContent) -
+        Number(a.querySelector(".total").textContent)
     );
 
-    sorted.forEach((row,i)=>{
-        let rank = i+1;
-        let baseName = row.dataset.name;  
-        let cell = row.querySelector(".name");
+    // STEP 4 — Clear the table and append sorted rows
+    tbody.innerHTML = "";
+    scored.forEach(r => tbody.appendChild(r));
+    unscored.forEach(r => tbody.appendChild(r));
 
-        if (rank === 1) cell.innerHTML = "🥇 " + baseName;
-        else if (rank === 2) cell.innerHTML = "🥈 " + baseName;
-        else if (rank === 3) cell.innerHTML = "🥉 " + baseName;
-        else cell.innerHTML = baseName;
+    // STEP 5 — Assign ranks + medals ONLY to scored skaters
+    scored.forEach((row, index) => {
+        let rank = index + 1;
+        let name = row.dataset.name;
+
+        // Assign medals only if score > 0
+        if (rank === 1) row.querySelector(".name").innerHTML = "🥇 " + name;
+        else if (rank === 2) row.querySelector(".name").innerHTML = "🥈 " + name;
+        else if (rank === 3) row.querySelector(".name").innerHTML = "🥉 " + name;
+        else row.querySelector(".name").innerHTML = name;
 
         row.querySelector(".rank").textContent = rank;
     });
+
+    // STEP 6 — Unscored skaters = no rank, no medal
+    unscored.forEach(row => {
+        row.querySelector(".name").innerHTML = row.dataset.name;
+        row.querySelector(".rank").textContent = "-";
+    });
 }
+
+
+
+    
 
 /* ------------------------------------------------------
       UNDO + DELETE
