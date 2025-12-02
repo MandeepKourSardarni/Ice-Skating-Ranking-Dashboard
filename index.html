@@ -728,15 +728,17 @@ function switchGroup(){
       TABLE BUILD
 =================================================== */
 
-function loadGroupTable(){
-    let tbody=document.querySelector("#scoreTable tbody");
-    tbody.innerHTML="";
+function loadGroupTable() {
+    let tbody = document.querySelector("#scoreTable tbody");
+    tbody.innerHTML = "";
 
-    groups[currentGroup].skaters.forEach(name=>{
-        let row=document.createElement("tr");
-        row.dataset.name=name;
+    let groupData = groups[currentGroup];
 
-        row.innerHTML=`
+    groupData.skaters.forEach(name => {
+        let row = document.createElement("tr");
+        row.dataset.name = name;
+
+        row.innerHTML = `
             <td class="name" onclick="openEditName('${name}')">${name}</td>
             <td></td><td></td><td></td><td></td><td></td>
             <td class="total">0</td>
@@ -747,16 +749,43 @@ function loadGroupTable(){
             </td>
         `;
 
-        distances.forEach((dist,i)=>{
-            row.children[i+1].appendChild(createDropdown(name,dist));
+        // Attach dropdowns
+        distances.forEach((dist, i) => {
+            let cell = row.children[i + 1];
+            let dd = createDropdown(name, dist);
+            cell.appendChild(dd);
         });
 
         tbody.appendChild(row);
     });
 
     rebuildDropdowns();
+
+    /* ⭐ RESTORE POSITIONS FROM HISTORY ⭐ */
+    groupData.skaters.forEach(name => {
+        let row = document.querySelector(`tr[data-name="${name}"]`);
+        let history = groups[currentGroup].history[name];
+
+        distances.forEach(dist => {
+            let dd = row.querySelector(`select[data-dist="${dist}"]`);
+
+            // last known position from dropdown history
+            let stack = history.stack;
+            let lastEntry = [...stack].reverse().find(s => s.dist === dist);
+
+            if (lastEntry && lastEntry.current !== "") {
+                dd.value = lastEntry.current;
+                dd.setAttribute("data-last", lastEntry.current);
+            } else {
+                dd.value = "";
+                dd.setAttribute("data-last", "");
+            }
+        });
+    });
+
     updateScores();
 }
+
 
 /* ==================================================
       DROPDOWNS
@@ -771,22 +800,24 @@ function createDropdown(name,dist){
     let count=groups[currentGroup].skaters.length;
 
     for(let i=1;i<=count;i++) dd.innerHTML+=`<option>${i}</option>`;
-
-    dd.onchange=()=>{
-        let prev = dd.getAttribute("data-last") || "";
-        let val = dd.value;
-
+    
+    dd.onchange = () => {
+        let prevVal = dd.getAttribute("data-last") || "";
+        let newVal = dd.value;
+        // Save previous state for undo
         groups[currentGroup].history[name].stack.push({
-            dist:dist,
-            prev:prev,
-            current:val
+            dist: dist,
+            prev: prevVal,
+            current: newVal
         });
 
-        dd.setAttribute("data-last",val);
+    // Save back the "last known" value
+    dd.setAttribute("data-last", newVal);
 
-        updateScores();
-        saveData();
-    };
+    updateScores();
+    saveData();
+};
+
 
     return dd;
 }
