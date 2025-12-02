@@ -84,7 +84,6 @@ body {
     background:#fff;
 }
 
-/* Icons */
 .sun { display:none; }
 .moon { display:block; }
 
@@ -323,7 +322,7 @@ td.name { text-align:left; padding-left:12px; }
         <button class="danger" onclick="resetAll()">Reset All Groups</button>
         <button onclick="openHelp()">Help / Instructions</button>
 
-        <!-- ⭐ Sliding Theme Toggle -->
+        <!-- SLIDING THEME TOGGLE -->
         <div class="theme-toggle-wrapper">
             <button id="themeToggle" class="theme-switch">
                 <div class="slider">
@@ -351,7 +350,8 @@ td.name { text-align:left; padding-left:12px; }
         <tr>
             <th>Name</th>
             <th>400</th><th>500</th><th>800</th><th>1000</th><th>1500</th>
-            <th>Total</th><th>Rank</th><th>Undo</th><th>Delete</th>
+            <th>Total</th><th>Rank</th>
+            <th>Undo / Delete</th>
         </tr>
     </thead>
     <tbody></tbody>
@@ -376,11 +376,10 @@ td.name { text-align:left; padding-left:12px; }
 
 <div id="helpPopup">
     <h2>Instructions</h2>
-    <p>• Upload Excel to auto-add skaters into groups.</p>
-    <p>• Add names manually if needed.</p>
+    <p>• Upload Excel to auto-add skaters.</p>
     <p>• Enter race positions to calculate points.</p>
-    <p>• Ranking updates automatically.</p>
-    <p>• Medals only appear for scored skaters.</p>
+    <p>• Rankings update automatically.</p>
+    <p>• Undo only undoes last change.</p>
     <button onclick="closeHelp()">Close</button>
 </div>
 
@@ -416,7 +415,7 @@ function applyTheme(mode) {
 }
 
 /* --------------------------------------------------
-     ALL EXISTING LOGIC BELOW (UNCHANGED)
+      EXISTING LOGIC (UNCHANGED)
 --------------------------------------------------*/
 
 function showExcelErrorPopup(){
@@ -570,11 +569,15 @@ function loadGroupTable(){
 
         row.innerHTML=`
             <td class="name" onclick="openEditName('${name}')">${name}</td>
+
             <td></td><td></td><td></td><td></td><td></td>
             <td class="total">0</td>
             <td class="rank">-</td>
-            <td><button class="danger" onclick="undo('${name}')">Undo</button></td>
-            <td><button class="danger" onclick="deleteSkater('${name}')">Delete</button></td>
+
+            <td>
+                <button class="danger" onclick="undo('${name}')">Undo</button>
+                <button class="danger" onclick="deleteSkater('${name}')">Delete</button>
+            </td>
         `;
 
         distances.forEach((dist,i)=>{
@@ -618,9 +621,9 @@ function rebuildDropdowns(){
     });
 }
 
-/* ---------------------------
-         FIXED SORTING
-----------------------------*/
+/* --------------------------------------------------
+      FIXED SORTING + RANKING
+--------------------------------------------------*/
 
 function updateScores(){
     let tbody=document.querySelector("#scoreTable tbody");
@@ -665,24 +668,32 @@ function updateScores(){
     });
 }
 
+/* --------------------------------------------------
+      IMPROVED UNDO (undo only latest, multiple undo works)
+--------------------------------------------------*/
+
 function undo(name){
     let g=groups[currentGroup];
     let row=document.querySelector(`tr[data-name="${name}"]`);
 
     row.querySelectorAll("select.position").forEach((dd,i)=>{
         let dist=distances[i];
-        let stack=g.history[name][dist];
+        let historyStack=g.history[name][dist];
 
-        if(stack.length>0){
-            let prev=stack.pop();
-            dd.value=prev||"";
-            dd.setAttribute("data-last",prev||"");
+        if(historyStack.length > 0){
+            let previousValue = historyStack.pop();
+            dd.value = previousValue || "";
+            dd.setAttribute("data-last", previousValue || "");
         }
     });
 
     updateScores();
     saveData();
 }
+
+/* --------------------------------------------------
+      DELETE PLAYER
+--------------------------------------------------*/
 
 function deleteSkater(name){
     let g=groups[currentGroup];
