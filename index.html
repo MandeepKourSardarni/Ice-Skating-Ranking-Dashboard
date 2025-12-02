@@ -285,47 +285,43 @@ td.name {
 </div>
 
 <!-- HELP POPUP -->
-<div id="helpPopup">
-    <h2>Instructions</h2>
+<!-- HELP POPUP -->
+<div id="helpPopup" style="
+    display:none; 
+    position:fixed; 
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:90%; max-width:480px;
+    background:rgba(0,0,0,0.92);
+    padding:20px;
+    border-radius:12px;
+    color:white;
+    text-align:left;
+    line-height:1.6;
+    z-index:300;">
+    
+    <h2 style="margin-top:0; text-align:center;">Instructions</h2>
 
-    <p>
-    <b>1️⃣ Uploading Participants (Excel)</b><br>
-    Select your Excel file → system reads names from the “Divisions” sheet.
-    </p>
+    <p>• Upload Excel to auto-add skaters into correct groups.</p>
+    <p>• Add names manually if the Excel file does not upload properly.</p>
+    <p>• Select a group from the dropdown to view that group’s scoreboard.</p>
+    <p>• Enter race positions for each distance to calculate points.</p>
+    <p>• Rankings update automatically based on total points.</p>
+    <p>• Gold, silver, and bronze medals appear for the top three scores.</p>
+    <p>• Click a skater’s name to edit it and save changes.</p>
+    <p>• Use Undo to reverse the last score entry for a skater.</p>
+    <p>• Use Delete to remove a skater completely from the group.</p>
+    <p>• Reset Group clears only the current group; Reset All clears everything.</p>
+    <p>• All data saves automatically and stays even after refreshing.</p>
 
-    <p>
-    <b>2️⃣ Add Names Manually</b><br>
-    Type name → choose group → Add.
-    </p>
-
-    <p>
-    <b>3️⃣ Editing Names</b><br>
-    Click on a player's name → popup opens → Edit → Save.
-    </p>
-
-    <p>
-    <b>4️⃣ Entering Results</b><br>
-    Use dropdowns to assign positions. Scores update automatically using official points.
-    </p>
-
-    <p>
-    <b>5️⃣ Ranking</b><br>
-    Players are sorted automatically. Top 3 get 🥇🥈🥉.
-    </p>
-
-    <p>
-    <b>6️⃣ Undo</b><br>
-    Removes last change for that player only.
-    </p>
-
-    <p>
-    <b>7️⃣ Reset</b><br>
-    Reset Group clears only the selected group.  
-    Reset All clears all groups.
-    </p>
-
-    <button onclick="closeHelp()">Close</button>
+    <button onclick="closeHelp()" 
+            style="margin-top:12px; width:100%; padding:10px; 
+            background:#1e90ff; color:white; border:none; 
+            border-radius:6px; cursor:pointer;">
+        Close
+    </button>
 </div>
+
 
 <script>
 
