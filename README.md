@@ -67,7 +67,7 @@ Quick, simple, and made to reduce stress during busy race days.
 This is not an official timing or scoring program.
 It is a small project built by a parent — for other parents, skaters, and coaches — to make competition days easier, calmer, and more encouraging.
 
-If it helps even one young skater track their improvement with pride, it has already achieved its purpose.
+If it helps even one young skater track their improvement & progress, it has already achieved its purpose.
 
 ---
 
