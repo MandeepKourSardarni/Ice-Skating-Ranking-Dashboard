@@ -9,16 +9,18 @@ Scan this QR code to open the Ice Skating Short Track Ranking Dashboard instantl
 ![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/)
 
 
-# ⛸️ Ice Skating Short Track Ranking Dashboard
 
-This project began because my child skates in short track competitions, and every meet I found myself trying to manually track points, standings, and overall progress.
-Keeping up with multiple distances and comparing results across skaters was not easy.
+This project began from a very personal place. My child skates in short track competitions, and every meet I found myself struggling to manually track points, placements, and progress. Between cheering, timing, and supporting them, it became hard to stay organized — and I didn’t want stress to take away from their joy on the ice.
 
-I built this dashboard as a simple way to see improvement over time.
-Winning or losing is not the focus — **growth, effort, and progress matter more**.
-As a caring parent, I wanted something that could help keep things organized and stress-free. ❄️
+So I built this dashboard as a simple way to follow along with their improvements.
+Not for medals. Not for comparison.
+But to celebrate effort, growth, and confidence. ❤️⛸️
 
----
+As a caring parent, I just wanted something that makes things easier — a tool that helps me encourage them, stay present, and enjoy every moment of their journey. ❄️✨⛸️
+I hope this simple tool helps other parents, too, who just want to keep things organized while cheering with a full heart. ❄️⛸️
+
+
+
 
 ## ⭐ What This Dashboard Does
 
