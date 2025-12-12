@@ -371,26 +371,8 @@ td.name { text-align:left; padding-left:12px; }
     text-align:center;
 }
 
-/* --------------------------------------------------
-   BUY ME A COFFEE FLOATING BUTTON
---------------------------------------------------*/
-#bmc-button {
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 10000;
-}
-
-#bmc-button img {
-    height: 48px;
-    width: auto;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.45);
-    cursor: pointer;
-}
-
 /* ==================================================
-   🎁 GIFT (PAYPAL) BUTTON + POPUP  (NEW)
+   🎁 GIFT (PAYPAL) BUTTON + POPUP
 =================================================== */
 .giftBtn{
     background:rgba(255,255,255,0.15);
@@ -445,14 +427,6 @@ td.name { text-align:left; padding-left:12px; }
 
 <body>
 
-<!-- ⭐ BUY ME A COFFEE TOP-RIGHT BUTTON -->
-<div id="bmc-button">
-    <a href="https://buymeacoffee.com/mandeepkour" target="_blank">
-        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
-             alt="Buy Me A Coffee">
-    </a>
-</div>
-
 <div class="bg"></div>
 <div class="bgOverlay"></div>
 
@@ -482,7 +456,6 @@ td.name { text-align:left; padding-left:12px; }
         <button class="danger" onclick="resetGroup()">Reset Group</button>
         <button class="danger" onclick="resetAll()">Reset All Groups</button>
         <button onclick="openHelp()">Help</button>
-        <!-- Renamed dynamic distance button -->
         <button id="addDistanceBtn" onclick="openActionsPopup()">Actions</button>
 
         <div class="theme-toggle-wrapper" style="gap:10px;">
@@ -522,7 +495,6 @@ td.name { text-align:left; padding-left:12px; }
     <tbody></tbody>
 </table>
 
-<!-- POPUPS -->
 <!-- CUTE GLASS ERROR POPUP -->
 <div id="excelErrorPopup">
     <div class="excelErrorBox">
@@ -621,7 +593,7 @@ td.name { text-align:left; padding-left:12px; }
     </div>
 </div>
 
-<!-- ✅ PAYPAL POPUP (NEW) -->
+<!-- ✅ PAYPAL POPUP -->
 <div id="paypalPopup">
   <div class="paypalBox">
     <h2 style="margin:0 0 8px 0;">Support this dashboard 💙</h2>
@@ -629,10 +601,10 @@ td.name { text-align:left; padding-left:12px; }
 
     <div class="paypalLinks">
       <!-- Replace MandeepKour with your PayPal.me username -->
-      <a href="https://paypal.me/MandeepKour/2" target="_blank"><button>$2</button></a>
-      <a href="https://paypal.me/MandeepKour/5" target="_blank"><button>$5</button></a>
-      <a href="https://paypal.me/MandeepKour/10" target="_blank"><button>$10</button></a>
-      <a href="https://paypal.me/MandeepKour" target="_blank"><button>Custom</button></a>
+      <a href="https://www.paypal.me/MandeepSardarni/2" target="_blank"><button>$2</button></a>
+      <a href="https://www.paypal.me/MandeepSardarni/5" target="_blank"><button>$5</button></a>
+      <a href="https://www.paypal.me/MandeepSardarni/10" target="_blank"><button>$10</button></a>
+      <a href="https://www.paypal.me/MandeepSardarni" target="_blank"><button>Custom</button></a>
     </div>
 
     <br>
@@ -1241,11 +1213,10 @@ function closeManageDistances(){
 function deleteDistance(idx){
     distances.splice(idx,1);
     if(distances.length === 0){
-        // do not allow zero distances – revert to defaults
         distances = [...defaultDistances];
     }
     saveDistances();
-    openManageDistances(); // re-render list
+    openManageDistances();
 }
 
 function saveManagedDistances(){
@@ -1265,7 +1236,6 @@ function saveManagedDistances(){
     distances = newDists;
     saveDistances();
 
-    // ensure distHistory contains these keys
     Object.keys(groups).forEach(gName=>{
         let g = groups[gName];
         Object.keys(g.history).forEach(skater=>{
@@ -1282,7 +1252,7 @@ function saveManagedDistances(){
 }
 
 /* ==================================================
-      🎁 PAYPAL POPUP (NEW)
+      🎁 PAYPAL POPUP
 =================================================== */
 function openPaypalPopup(){
     document.getElementById("paypalPopup").style.display = "flex";
