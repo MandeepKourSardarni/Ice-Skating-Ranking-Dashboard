@@ -3,6 +3,9 @@
 <head>
 <title>Ice Skating Short Track Ranking Dashboard</title>
 
+<!-- ✅ IMPORTANT: makes media queries work on phones -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
@@ -234,36 +237,47 @@ td.name { text-align:left; padding-left:12px; }
 --------------------------------------------------*/
 #excelErrorPopup {
     position:fixed;
-    left:50%;
-    top:140px;
-    transform:translateX(-50%);
-    width:90%;
-    max-width:420px;
-    background:rgba(0,0,0,0.85);
-    padding:20px;
-    border-radius:12px;
-    color:white;
-    text-align:center;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(6px);
     z-index:99999;
     display:none;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
 }
 
-#excelErrorPopup .excelMsg {
-    font-family: Arial, sans-serif;
-    font-style: italic;
-    font-size:16px;
-    margin-bottom:12px;
-}
-
-#excelErrorPopup button {
-    background:#1e90ff;
-    border:none;
-    padding:10px 20px;
-    border-radius:6px;
+/* ✅ glass panel look for your error popup */
+.excelErrorBox{
+    width:100%;
+    max-width:420px;
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:14px;
+    padding:18px 16px;
+    text-align:center;
     color:white;
-    cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,0.35);
 }
-#excelErrorPopup button:hover { background:#5ab3ff; }
+
+.excelErrorBox h3{
+    margin:0 0 8px 0;
+    font-size:20px;
+    text-shadow:0 0 10px rgba(0,160,255,0.35);
+}
+
+.excelErrorBox p{
+    margin:8px 0 0 0;
+    font-size:15px;
+    line-height:1.35;
+    opacity:0.95;
+}
+
+.excelErrorBox button{
+    margin-top:14px;
+    padding:10px 16px;
+    border-radius:10px;
+}
 
 /* Glass Confirm Popup */
 .glassConfirm {
@@ -424,8 +438,7 @@ td.name { text-align:left; padding-left:12px; }
 }
 
 /* ==================================================
-   ✅ MOBILE FRIENDLY PATCH (CSS ONLY)
-   Paste at the END of your <style> section
+   ✅ MOBILE FRIENDLY PATCH
 =================================================== */
 
 /* Prevent sideways overflow on mobile */
@@ -455,25 +468,19 @@ html, body {
     max-width: 100%;
   }
 
-  /* Manual add area: keep Add button + group dropdown nice */
-  #skaterName{
-    width: 100%;
-  }
-  #addGroupSelect{
-    width: 100%;
-  }
-
   /* Theme + 🎁 buttons stay side-by-side */
   .theme-toggle-wrapper{
     width: 100%;
     justify-content: flex-start;
   }
+
+  /* override the "button width 100%" only for these */
   .theme-switch{
-    width: 52px; /* a bit bigger for touch */
+    width: 52px !important;
   }
   .giftBtn{
-    width: 42px;
-    height: 36px;
+    width: 42px !important;
+    height: 36px !important;
   }
 
   /* Header and bars smaller */
@@ -521,8 +528,6 @@ html, body {
   th{ font-size: 14px; }
   th, td{ padding: 9px 7px; }
 }
-
-    
 </style>
 </head>
 
@@ -601,9 +606,7 @@ html, body {
     <div class="excelErrorBox">
         <h3>⚠️ Oops!</h3>
 
-        <p>
-            The Excel file looks a little <b>glitchy</b> or not in the expected format
-        </p>
+        <p>The Excel file looks a little <b>glitchy</b> or not in the expected format.</p>
 
         <p style="margin-top:8px;">
             You can try uploading again<br>
@@ -698,10 +701,9 @@ html, body {
 <div id="paypalPopup">
   <div class="paypalBox">
     <h2 style="margin:0 0 8px 0;">Support this dashboard 💙</h2>
-    <p style="margin:0; opacity:0.95;">If this page helped you, you can support by donatating via PayPal</p>
+    <p style="margin:0; opacity:0.95;">If this page helped you, you can support by donating via PayPal</p>
 
     <div class="paypalLinks">
-      <!-- Replace MandeepKour with your PayPal.me username -->
       <a href="https://www.paypal.me/MandeepSardarni/2" target="_blank"><button>$2</button></a>
       <a href="https://www.paypal.me/MandeepSardarni/5" target="_blank"><button>$5</button></a>
       <a href="https://www.paypal.me/MandeepSardarni/10" target="_blank"><button>$10</button></a>
@@ -745,7 +747,7 @@ function applyTheme(mode) {
       ERROR POPUP
 =================================================== */
 function showExcelErrorPopup() {
-    document.getElementById("excelErrorPopup").style.display = "block";
+    document.getElementById("excelErrorPopup").style.display = "flex";
 }
 function closeExcelErrorPopup() {
     document.getElementById("excelErrorPopup").style.display = "none";
@@ -1263,10 +1265,9 @@ function saveNewDistance(){
         return;
     }
 
-    distances.push(d);   // append at the end
+    distances.push(d);
     saveDistances();
 
-    // ensure distHistory keys exist
     Object.keys(groups).forEach(gName=>{
         let g = groups[gName];
         Object.keys(g.history).forEach(skater=>{
