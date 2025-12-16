@@ -9,6 +9,7 @@
 
 ## 📱 Quick Access – Scan the QR Code
 
+
 Scan this QR code to open the Ice Skating Short Track Ranking Dashboard instantly:
 
 ![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/)
