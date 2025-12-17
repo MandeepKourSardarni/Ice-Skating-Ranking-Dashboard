@@ -1,6 +1,6 @@
 ## 🌐 Live Dashboard
 
-👉 [https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/](https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/)
+👉 [[https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/](https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/)](https://mandeepkoursardarni.github.io/Ice-Skating-Ranking-Dashboard/)
 
 ## Watch Demo Video
 
