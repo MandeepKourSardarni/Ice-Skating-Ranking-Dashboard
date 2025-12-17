@@ -4,7 +4,7 @@
 
 ## Watch Demo Video
 
-👉 [https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/](https://github.com/MandeepKourSardarni/Ice-Skating-short-track-Ranking-Dashboard/releases/tag/DemoV))
+👉 [[https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/](https://youtu.be/0c4IWay83I0)]
 
 
 
