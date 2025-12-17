@@ -4,7 +4,8 @@
 
 ## Watch Demo Video
 
-👉 [https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/](https://github.com/MandeepKourSardarni/Ice-Skating-short-track-Ranking-Dashboard/releases/tag/Video))
+👉 [https://mandeepkoursardarni.github.io/Ice-Skating-short-track-Ranking-Dashboard/](https://github.com/MandeepKourSardarni/Ice-Skating-short-track-Ranking-Dashboard/releases/tag/DemoV))
+
 
 
 ## 📱 Quick Access – Scan the QR Code
