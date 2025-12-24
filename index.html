@@ -239,27 +239,41 @@
     }
 
     /* ✅ Sticky "Name" column (left) */
-    th.nameCol,
-    td.name{
-      position: sticky;
-      left: 0;
-      z-index: 3;
-    }
-    th.nameCol{ z-index: 6; }
+th.nameCol,
+td.name{
+  position: sticky;
+  left: 0;
+  z-index: 3;              /* above normal cells */
+}
 
-    /* Give sticky column its own background so text stays readable while scrolling */
-    td.name{
-      background: rgba(0,0,0,.28);
-      backdrop-filter: blur(14px);
-    }
-    th.nameCol{
-      background: rgba(0,0,0,.35);
-      backdrop-filter: blur(16px);
-    }
+/* Header cell should be above sticky body cells */
+th.nameCol{
+  z-index: 6;
+}
 
-    body.light td.name{ background: rgba(255,255,255,.72); }
-    body.light th.nameCol{ background: rgba(255,255,255,.86); }
+/* Give sticky column its own background so text stays readable while scrolling */
+td.name{
+  background: rgba(0,0,0,.28);
+  backdrop-filter: blur(14px);
+}
 
+/* Sticky header background remains consistent */
+th.nameCol{
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(16px);
+}
+
+/* Light mode backgrounds for sticky column */
+body.light td.name{
+  background: rgba(255,255,255,.72);
+}
+body.light th.nameCol{
+  background: rgba(255,255,255,.86);
+}
+
+
+
+    
     .total, .rank{ font-weight: 900; }
 
     .miniBtn{
@@ -534,6 +548,7 @@
       <h1>Ice Skating Short Track Ranking Dashboard</h1>
     </div>
 
+    <!-- ✅ ONE glass panel: Setup + Actions + Select Group -->
     <div class="topBar">
       <button class="tabBtn" id="setupBtn">🧾 Setup</button>
       <button class="tabBtn" id="actionsBtn">⚙️ Actions</button>
@@ -666,6 +681,7 @@
             <button class="btn" type="button" onclick="openManageDistances()">Open</button>
           </div>
 
+          <!-- ✅ NEW: EDIT POINTS -->
           <div class="actionItem">
             <div class="left">
               <div class="name">🎯 Edit Points</div>
@@ -757,7 +773,7 @@
     </div>
   </div>
 
-  <!-- EDIT POINTS -->
+  <!-- ✅ NEW: EDIT POINTS MODAL -->
   <div class="modalBackdrop" id="pointsModal">
     <div class="modal">
       <div class="modalInner">
@@ -793,32 +809,32 @@
         </div>
 
         <div class="smallBox" style="line-height:1.65;">
-          <div>📄 Start by uploading the official Excel file with clubs and divisions</div>
-          <div>✏️ You can also add skaters manually and choose the group</div>
+<div>📄 Start by uploading the official Excel file with clubs and divisions</div>
+<div>✏️ You can also add skaters manually and choose the group</div>
 
-          <div style="margin-top:10px;">🏅 Select each skater’s <b>race position</b> for a distance</div>
-          <div>✨ Scores are calculated from the selected race positions</div>
+<div style="margin-top:10px;">🏅 Select each skater’s <b>race position</b> for a distance</div>
+<div>✨ Scores are calculated from the selected race positions</div>
 
-          <div style="margin-top:10px;">
-            📊 The <b>Rank</b> column shows the skater’s overall position based on total score
-          </div>
-          <div style="font-size:12.5px; opacity:.9;">
-            (This rank may differ from individual race positions if there are gaps or undo actions)
-          </div>
+<div style="margin-top:10px;">
+  📊 The <b>Rank</b> column shows the skater’s overall position based on total score  
+</div>
+<div style="font-size:12.5px; opacity:.9;">
+  (This rank may differ from individual race positions if there are gaps or undo actions)
+</div>
 
-          <div style="margin-top:10px;">⚙️ Use <b>Actions</b> to add, edit, or delete distances</div>
+<div style="margin-top:10px;">⚙️ Use <b>Actions</b> to add, edit, or delete distances</div>
 
-          <div style="margin-top:10px;">📌 You can switch groups anytime — each group is tracked separately</div>
-          <div>📌 All data is stored <b>locally on your device</b>; nothing is uploaded or shared</div>
+<div style="margin-top:10px;">📌 You can switch groups anytime — each group is tracked separately</div>
+<div>📌 All data is stored <b>locally on your device</b>; nothing is uploaded or shared</div>
 
-          <div style="margin-top:10px;">↩️ <b>Undo</b> reverts the most recent position change for that skater</div>
+<div style="margin-top:10px;">↩️ <b>Undo</b> reverts the most recent position change for that skater</div>
 
-          <div style="margin-top:10px;">🗑️ <b>Reset Present Group</b> clears only the selected group</div>
-          <div>🧹 <b>Reset All Groups</b> clears all groups and restores default distances</div>
+<div style="margin-top:10px;">🗑️ <b>Reset Present Group</b> clears only the selected group</div>
+<div>🧹 <b>Reset All Groups</b> clears all groups and restores default distances</div>
 
-          <div style="margin-top:10px;">
-            🔗 <b>PB Tracker</b> is a separate tool for tracking personal bests across seasons and years
-          </div>
+<div style="margin-top:10px;">
+  🔗 <b>PB Tracker</b> is a separate tool for tracking personal bests across seasons and years
+</div>
 
           <div style="margin-top:12px; text-align:center; color:rgba(255,255,255,.90); font-weight:900;">
             💙 All the Best 💙
@@ -999,29 +1015,11 @@ function saveDistances(){
   localStorage.setItem("distances", JSON.stringify(distances));
 }
 
-/* ==================================================
-   ✅ NAME NORMALIZATION + VALIDATION (FIXES 137/140 CAP)
-=================================================== */
-function normalizeNameText(s){
-  return String(s ?? "")
-    .replace(/\u00A0/g, " ")      // non-breaking space
-    .replace(/[’‘]/g, "'")        // curly apostrophes -> '
-    .replace(/[–—]/g, "-")        // en/em dash -> -
-    .replace(/\s+/g, " ")         // collapse spaces
-    .trim();
-}
-
 function isName(x){
-  x = normalizeNameText(x);
-  if(!x) return false;
-  if(x.length < 2) return false;
-
-  // allow letters + accents + spaces + apostrophe + hyphen + dot (initials)
-  if(/[^A-Za-zÀ-ÿ .'-]/.test(x)) return false;
-
-  // must contain at least one letter
-  if(!/[A-Za-zÀ-ÿ]/.test(x)) return false;
-
+  if(!x || typeof x!=="string") return false;
+  x=x.trim();
+  if(x.length<2) return false;
+  if(/[^A-Za-zÀ-ÿ '-]/.test(x)) return false;
   return true;
 }
 
@@ -1064,6 +1062,7 @@ function renderPointsEditor(){
       </div>
     `;
   }
+
   box.innerHTML = html;
 }
 
@@ -1115,6 +1114,7 @@ function makeUniqueDistanceLabel(base){
 function buildHeaderRow(){
   const row = document.getElementById("headerRow");
   row.innerHTML = "<th class='nameCol' style='text-align:left;'>Name</th>";
+
   distances.forEach(d=>{
     row.innerHTML += `<th>${escapeHtml(d)}</th>`;
   });
@@ -1308,7 +1308,7 @@ function openEditName(name){
 }
 
 function saveEditedName(){
-  const newName = normalizeNameText(document.getElementById("editNameInput").value);
+  const newName = document.getElementById("editNameInput").value.trim();
   if(!newName) return;
 
   if(groups[currentGroup].skaters.includes(newName) && newName !== nameBeingEdited){
@@ -1332,15 +1332,10 @@ function saveEditedName(){
    ADD SKATER (MANUAL)
 =================================================== */
 function addSkaterToGroup(name, group){
-  name = normalizeNameText(name).replace(/[0-9]/g,"").replace(/\s+/g," ").trim();
+  name = name.replace(/[0-9]/g,"").replace(/\s+/g," ").trim();
   if(!name) return;
 
-  if(!groups[group]) groups[group] = { skaters: [], history: {} };
   const G = groups[group];
-
-  if(!Array.isArray(G.skaters)) G.skaters = [];
-  if(typeof G.history !== "object" || !G.history) G.history = {};
-
   if(!G.skaters.includes(name)){
     G.skaters.push(name);
     if(!G.history[name]) G.history[name] = { stack: [] };
@@ -1352,7 +1347,7 @@ function addSkaterToGroup(name, group){
 }
 
 function addManual(){
-  const name = normalizeNameText(document.getElementById("skaterName").value);
+  const name = document.getElementById("skaterName").value.trim();
   if(!name) return;
 
   const group = document.getElementById("addGroupSelect").value;
@@ -1380,6 +1375,7 @@ function resetAll(){
     distances = [...defaultDistances];
     saveDistances();
 
+    /* ✅ also restore points to default on Reset All */
     restorePointsToDefault();
 
     saveData();
@@ -1460,6 +1456,7 @@ function saveManagedDistances(){
     raw = [...defaultDistances];
   }
 
+  // Normalize duplicates into (2), (3)...
   const used = {};
   const normalized = raw.map(v=>{
     const base = String(v).trim().match(/^(\d+)/)?.[1] || String(v).trim();
@@ -1476,40 +1473,8 @@ function saveManagedDistances(){
 }
 
 /* ==================================================
-   ✅ EXCEL UPLOAD (ROBUST: GROUP ANYWHERE + HEADER COLS + SCAN + FULLNAME CELL)
-
+   EXCEL UPLOAD (same core logic)
 =================================================== */
-
-
-  // --- Normalizer (safe for excel strings/numbers)
-function normalizeText(v){
-  return (v === undefined || v === null) ? "" : String(v).replace(/\s+/g," ").trim();
-}
-
-// --- Words that should never be treated as a person-name row
-const BAD_ROW_WORDS = [
-  "FIRST", "LAST", "FULL", "NAME", "GENDER", "HELMET", "AGE",
-  "SKATER", "ATHLETE", "COMPETITOR", "PARTICIPANT",
-  "CLUB", "DIVISION", "DIVISIONS", "GROUP", "COACH",
-  "CATEGORY", "LEVEL", "DATE", "TIME"
-];
-
-// If a row contains these words (in the key cells), it's not a skater row
-function looksLikeHeaderRow(row){
-  const txt = row.map(c => normalizeText(c).toUpperCase()).join(" ");
-  return BAD_ROW_WORDS.some(w => txt.includes(w));
-}
-
-// Strict: a valid name part must be letters + accents + apostrophe/hyphen
-function isNamePart(s){
-  s = normalizeText(s);
-  if(!s) return false;
-  if(BAD_ROW_WORDS.includes(s.toUpperCase())) return false;
-  // allow O'Neill, Wint-Rose, McTavish etc
-  return /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*$/.test(s);
-}
-
-  
 function uploadExcel(){
   const file = document.getElementById("excelFile").files[0];
   if(!file){ toast("Please choose an Excel file."); return; }
@@ -1518,20 +1483,25 @@ function uploadExcel(){
   reader.onload = function(e){
     try{
       const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type:'array' });
+      const workbook = XLSX.read(data, {type:'array'});
 
-      // Heading (same as your earlier behavior)
-      const sheetNamesForHeading = ["Club","Clubs","Divisions"];
+      const sheetNames = ["Club","Clubs","Divisions"];
       let headingText = "";
-      for(const s of sheetNamesForHeading){
-        const sh = workbook.Sheets[s];
-        if(!sh) continue;
-        const a1 = sh["A1"] ? normalizeText(sh["A1"].v) : "";
+
+      for(const s of sheetNames){
+        const sheet = workbook.Sheets[s];
+        if(!sheet) continue;
+        const a1 = sheet["A1"] ? String(sheet["A1"].v).trim() : "";
         if(a1.length > 10){ headingText = a1; break; }
       }
+
       const headingEl = document.getElementById("excelHeading");
-      if(headingText){ headingEl.textContent = headingText; headingEl.style.display="block"; }
-      else headingEl.style.display="none";
+      if(headingText){
+        headingEl.textContent = headingText;
+        headingEl.style.display = "block";
+      } else {
+        headingEl.style.display = "none";
+      }
 
       const sheet = workbook.Sheets["Divisions"];
       if(!sheet){
@@ -1539,124 +1509,44 @@ function uploadExcel(){
         return;
       }
 
-      // defval:"" keeps missing cells as empty strings (very important)
-      const rows = XLSX.utils.sheet_to_json(sheet, { header:1, defval:"" });
-
-      // ✅ Group detection ONLY from expected area (H column, plus nearby)
-      function detectGroupFromRow(row){
-        const candidates = [row[7], row[6], row[8]]; // H, G, I
-        for(const c of candidates){
-          const raw = normalizeText(c).toUpperCase();
-          if(!raw) continue;
-
-          // accept: "ALPHA", "ALPHA:", "ALPHA -", "Group: ALPHA"
-          const m = raw.match(/\b(ALPHA|BRAVO|CHARLIE|DELTA|ECHO|FOXTROT|GOLF|HOTEL|INDIA|JAPAN|KILO|LONDON)\b/);
-          if(m && validGroups.includes(m[1])) {
-            const G = m[1];
-            return G.charAt(0) + G.slice(1).toLowerCase();
-          }
-        }
-        return null;
-      }
-
-      // ✅ Identify header columns when they exist (First Name / Last Name)
-      function detectHeaderCols(row){
-        const u = row.map(c => normalizeText(c).toUpperCase());
-        const f = u.findIndex(x => x.includes("FIRST") && x.includes("NAME"));
-        const l = u.findIndex(x => x.includes("LAST")  && x.includes("NAME"));
-        if(f !== -1 && l !== -1) return { firstCol:f, lastCol:l };
-        return null;
-      }
-
-      // Build name using header columns (supports multi-part last names)
-      function buildNameByHeader(row, firstCol, lastCol){
-        const first = normalizeText(row[firstCol]);
-        if(!isNamePart(first)) return null;
-
-        let lastParts = [];
-        for(let i=lastCol; i<row.length; i++){
-          const p = normalizeText(row[i]);
-          if(!p) break;
-          if(!isNamePart(p)) break;
-          lastParts.push(p);
-        }
-        if(lastParts.length === 0) return null;
-
-        return (first + " " + lastParts.join(" ")).replace(/\s+/g," ").trim();
-      }
-
-      // Fallback: scan adjacent cells for First + Last (strict)
-      function buildNameByScan(row){
-        for(let i=0; i<row.length-1; i++){
-          const a = normalizeText(row[i]);
-          const b = normalizeText(row[i+1]);
-          if(isNamePart(a) && isNamePart(b)){
-            // allow multi-part last name in next columns
-            let lastParts = [b];
-            for(let j=i+2; j<row.length; j++){
-              const p = normalizeText(row[j]);
-              if(!p) break;
-              if(!isNamePart(p)) break;
-              lastParts.push(p);
-            }
-            return (a + " " + lastParts.join(" ")).replace(/\s+/g," ").trim();
-          }
-        }
-        return null;
-      }
-
-      // ✅ Start with current group so early names aren't lost
-      let detectedGroup = currentGroup;
-
-      // header cols can repeat throughout file
-      let firstCol = null, lastCol = null;
-
-      // unique add keys
-      const addedKeys = new Set();
+      const rows = XLSX.utils.sheet_to_json(sheet, {header:1});
+      let detectedGroup = null;
       let addedCount = 0;
 
       for(let r=0; r<rows.length; r++){
         const row = rows[r];
-        if(!row || row.every(c => !normalizeText(c))) continue;
+        if(!row) continue;
 
-        // Skip obvious header/meta rows completely
-        if(looksLikeHeaderRow(row)) {
-          // BUT also allow this row to redefine header columns
-          const hdr = detectHeaderCols(row);
-          if(hdr){ firstCol = hdr.firstCol; lastCol = hdr.lastCol; }
-          continue;
+        const cell = row[7];
+        if(typeof cell === "string"){
+          const G = cell.trim().toUpperCase();
+          if(validGroups.includes(G)){
+            detectedGroup = G.charAt(0) + G.slice(1).toLowerCase();
+            continue;
+          }
         }
 
-        // Group marker (do NOT skip row, just update group)
-        const g = detectGroupFromRow(row);
-        if(g) detectedGroup = g;
+        const cells = [
+          (row[1]||"").toString().trim(),
+          (row[2]||"").toString().trim(),
+          (row[3]||"").toString().trim(),
+          (row[4]||"").toString().trim()
+        ];
 
-        // Learn header columns if present
-        const hdr = detectHeaderCols(row);
-        if(hdr){ firstCol = hdr.firstCol; lastCol = hdr.lastCol; }
+        const combined = (cells.join(" ").toUpperCase()).replace(/\s+/g," ").trim();
+        const headerBlacklist = ["FIRST","LAST","FULL","NAME","SKATER","ATHLETE","COMPETITOR","PARTICIPANT"];
+        if(headerBlacklist.some(h=>combined.includes(h))) continue;
 
-        // Try build name
         let name = null;
-        if(firstCol !== null && lastCol !== null){
-          name = buildNameByHeader(row, firstCol, lastCol);
+        if(isName(cells[0]) && isName(cells[1])) name = cells[0]+" "+cells[1];
+        else if(isName(cells[1]) && isName(cells[2])) name = cells[1]+" "+cells[2];
+        else if(isName(cells[2]) && isName(cells[3])) name = cells[2]+" "+cells[3];
+
+        if(name && detectedGroup){
+          name = name.replace(/[0-9]/g,"").replace(/\s+/g," ").trim();
+          addSkaterToGroup(name, detectedGroup);
+          addedCount++;
         }
-        if(!name) name = buildNameByScan(row);
-        if(!name) continue;
-
-        const clean = name
-          .replace(/[0-9]/g,"")
-          .replace(/\s+/g," ")
-          .trim();
-
-        // must have at least 2 parts
-        if(clean.split(" ").filter(Boolean).length < 2) continue;
-
-        const key = detectedGroup + "||" + clean;
-        if(addedKeys.has(key)) continue;
-        addedKeys.add(key);
-
-        addSkaterToGroup(clean, detectedGroup);
-        addedCount++;
       }
 
       if(addedCount === 0){
@@ -1664,9 +1554,8 @@ function uploadExcel(){
       }else{
         saveData();
         loadGroupTable();
-        toast(`Added ${addedCount} skaters across groups.`);
+        toast(`Added ${addedCount} skaters to ${detectedGroup}.`);
       }
-
     }catch(err){
       console.error(err);
       toast("Could not read this Excel file. Try a different file.");
