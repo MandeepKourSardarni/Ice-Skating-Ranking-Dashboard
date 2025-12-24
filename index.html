@@ -1469,8 +1469,9 @@ function saveManagedDistances(){
 }
 
 /* ==================================================
-   EXCEL UPLOAD (same core logic)
+   EXCEL UPLOAD function
 =================================================== */
+<script>
 function uploadExcel(){
   const file = document.getElementById("excelFile").files[0];
   if(!file){ toast("Please choose an Excel file."); return; }
@@ -1481,16 +1482,15 @@ function uploadExcel(){
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, {type:'array'});
 
+      // Optional heading extraction (keep your logic)
       const sheetNames = ["Club","Clubs","Divisions"];
       let headingText = "";
-
       for(const s of sheetNames){
         const sheet = workbook.Sheets[s];
         if(!sheet) continue;
         const a1 = sheet["A1"] ? String(sheet["A1"].v).trim() : "";
         if(a1.length > 10){ headingText = a1; break; }
       }
-
       const headingEl = document.getElementById("excelHeading");
       if(headingText){
         headingEl.textContent = headingText;
@@ -1506,22 +1506,29 @@ function uploadExcel(){
       }
 
       const rows = XLSX.utils.sheet_to_json(sheet, {header:1});
-      let detectedGroup = null;
+
+      // ✅ fallback: start with CURRENT selected group (so we never skip early rows)
+      let detectedGroup = currentGroup;
       let addedCount = 0;
+
+      // optional: track skipped rows for debugging
+      let skippedBecauseNoName = 0;
 
       for(let r=0; r<rows.length; r++){
         const row = rows[r];
         if(!row) continue;
 
-        const cell = row[7];
-        if(typeof cell === "string"){
-          const G = cell.trim().toUpperCase();
+        // ✅ Detect group from column H (index 7) if present
+        const groupCell = row[7];
+        if(typeof groupCell === "string"){
+          const G = groupCell.trim().toUpperCase();
           if(validGroups.includes(G)){
             detectedGroup = G.charAt(0) + G.slice(1).toLowerCase();
-            continue;
+            continue; // this row is a group marker, not a name row
           }
         }
 
+        // pull likely name columns (your existing pattern)
         const cells = [
           (row[1]||"").toString().trim(),
           (row[2]||"").toString().trim(),
@@ -1529,29 +1536,53 @@ function uploadExcel(){
           (row[4]||"").toString().trim()
         ];
 
+        // skip obvious header rows
         const combined = (cells.join(" ").toUpperCase()).replace(/\s+/g," ").trim();
         const headerBlacklist = ["FIRST","LAST","FULL","NAME","SKATER","ATHLETE","COMPETITOR","PARTICIPANT"];
         if(headerBlacklist.some(h=>combined.includes(h))) continue;
 
+        // ✅ Build name with better tolerance:
+        // - allow last name with spaces (e.g., "Mori Madruga")
+        // - allow first name with spaces (e.g., "Samarveer Singh")
         let name = null;
-        if(isName(cells[0]) && isName(cells[1])) name = cells[0]+" "+cells[1];
-        else if(isName(cells[1]) && isName(cells[2])) name = cells[1]+" "+cells[2];
-        else if(isName(cells[2]) && isName(cells[3])) name = cells[2]+" "+cells[3];
 
-        if(name && detectedGroup){
+        // Common: First + Last
+        if(isName(cells[0]) && isName(cells[1])) name = `${cells[0]} ${cells[1]}`;
+
+        // Sometimes shifted by one column
+        else if(isName(cells[1]) && isName(cells[2])) name = `${cells[1]} ${cells[2]}`;
+        else if(isName(cells[2]) && isName(cells[3])) name = `${cells[2]} ${cells[3]}`;
+
+        // Sometimes full name is in a single cell (fallback)
+        else {
+          const maybeFull =
+            cells.find(c => isName(c) && c.split(/\s+/).length >= 2) || "";
+          if(maybeFull) name = maybeFull;
+        }
+
+        if(name){
           name = name.replace(/[0-9]/g,"").replace(/\s+/g," ").trim();
           addSkaterToGroup(name, detectedGroup);
           addedCount++;
+        }else{
+          // for debugging only
+          if(cells.join("").trim().length > 0) skippedBecauseNoName++;
         }
       }
 
+      saveData();
+      loadGroupTable();
+
       if(addedCount === 0){
-        toast("Excel looks glitchy or not in expected format. Try again or add names manually.");
+        toast("No skaters found. Try a different file or add names manually.");
       }else{
-        saveData();
-        loadGroupTable();
-        toast(`Added ${addedCount} skaters to ${detectedGroup}.`);
+        // ✅ show which group we ended up using
+        toast(`Added ${addedCount} skaters. (Fallback group: ${currentGroup})`);
       }
+
+      // optional: console debug
+      console.log("Added:", addedCount, "Skipped(no name):", skippedBecauseNoName);
+
     }catch(err){
       console.error(err);
       toast("Could not read this Excel file. Try a different file.");
@@ -1559,6 +1590,8 @@ function uploadExcel(){
   };
   reader.readAsArrayBuffer(file);
 }
+</script>
+
 
 /* ==================================================
    UTILS
