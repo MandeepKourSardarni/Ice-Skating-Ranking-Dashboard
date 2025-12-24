@@ -1471,7 +1471,7 @@ function saveManagedDistances(){
 /* ==================================================
    EXCEL UPLOAD function
 =================================================== */
-<script>
+
 function uploadExcel(){
   const file = document.getElementById("excelFile").files[0];
   if(!file){ toast("Please choose an Excel file."); return; }
@@ -1590,7 +1590,6 @@ function uploadExcel(){
   };
   reader.readAsArrayBuffer(file);
 }
-</script>
 
 
 /* ==================================================
