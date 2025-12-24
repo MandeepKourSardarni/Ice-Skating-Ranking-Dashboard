@@ -558,7 +558,7 @@ body.light th.nameCol{
         <option>Alpha</option><option>Bravo</option><option>Charlie</option>
         <option>Delta</option><option>Echo</option><option>Foxtrot</option>
         <option>Golf</option><option>Hotel</option><option>India</option>
-        <option>Japan</option><option>Kilo</option><option>London</option>
+        <option>Juliet</option><option>Kilo</option><option>London</option>
       </select>
     </div>
 
@@ -632,7 +632,7 @@ body.light th.nameCol{
               <option>Alpha</option><option>Bravo</option><option>Charlie</option>
               <option>Delta</option><option>Echo</option><option>Foxtrot</option>
               <option>Golf</option><option>Hotel</option><option>India</option>
-              <option>Japan</option><option>Kilo</option><option>London</option>
+              <option>Juliet</option><option>Kilo</option><option>London</option>
             </select>
             <button class="btn btnPrimary" type="button" onclick="addManual()">➕ Add</button>
           </div>
@@ -949,7 +949,7 @@ document.getElementById('confirmBackdrop').addEventListener('click', (e)=>{
 /* ==================================================
    DATA MODEL
 =================================================== */
-const groupNames = ["Alpha","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","Hotel","India","Japan","Kilo","London"];
+const groupNames = ["Alpha","Bravo","Charlie","Delta","Echo","Foxtrot","Golf","Hotel","India","Juliet","Kilo","London"];
 const validGroups = groupNames.map(g=>g.toUpperCase());
 
 /* ✅ DEFAULT POINTS + USER-EDITABLE POINTS (saved on device) */
@@ -1548,7 +1548,7 @@ function uploadExcel(){
           if(!raw) continue;
 
           // Accept "ALPHA", "ALPHA:", "Group: ALPHA"
-          const m = raw.match(/\b(ALPHA|BRAVO|CHARLIE|DELTA|ECHO|FOXTROT|GOLF|HOTEL|INDIA|JAPAN|KILO|LONDON)\b/);
+          const m = raw.match(/\b(ALPHA|BRAVO|CHARLIE|DELTA|ECHO|FOXTROT|GOLF|HOTEL|INDIA|JULIET|KILO|LONDON)\b/);
           if(m && validGroups.includes(m[1])){
             const G = m[1];
             return G.charAt(0) + G.slice(1).toLowerCase();
