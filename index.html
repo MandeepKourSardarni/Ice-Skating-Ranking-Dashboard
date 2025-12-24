@@ -1499,65 +1499,46 @@ function isNamePart(s){
    EXCEL UPLOAD (same core logic)
 =================================================== */
 function uploadExcel(){
-  const file = document.getElementById("excelFile").files[0];
+  const fileInput = document.getElementById("excelFile");
+  const file = fileInput && fileInput.files ? fileInput.files[0] : null;
   if(!file){ toast("Please choose an Excel file."); return; }
 
   const reader = new FileReader();
+
   reader.onload = function(e){
     try{
       const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type:'array' });
+      const workbook = XLSX.read(data, { type: "array" });
 
-      // ----- heading text (same behavior)
-      const sheetNamesForHeading = ["Club","Clubs","Divisions"];
-      let headingText = "";
-      for(const s of sheetNamesForHeading){
-        const sh = workbook.Sheets[s];
-        if(!sh) continue;
-        const a1 = sh["A1"] ? normalizeText(sh["A1"].v) : "";
-        if(a1.length > 10){ headingText = a1; break; }
-      }
-      const headingEl = document.getElementById("excelHeading");
-      if(headingText){ headingEl.textContent = headingText; headingEl.style.display="block"; }
-      else headingEl.style.display="none";
+      // -------------------------------
+      // Helpers (INSIDE so nothing is missing)
+      // -------------------------------
+      const BAD_ROW_WORDS = [
+        "FIRST","LAST","FULL","NAME","GENDER","HELMET","AGE",
+        "SKATER","ATHLETE","COMPETITOR","PARTICIPANT",
+        "CLUB","DIVISION","DIVISIONS","GROUP","COACH",
+        "CATEGORY","LEVEL","DATE","TIME"
+      ];
 
-      const sheet = workbook.Sheets["Divisions"];
-      if(!sheet){
-        toast("Excel format not expected (missing 'Divisions' sheet).");
-        return;
+      function normalizeText(v){
+        return (v === undefined || v === null) ? "" : String(v).replace(/\s+/g," ").trim();
       }
 
-      // IMPORTANT: defval keeps empty cells as ""
-      const rows = XLSX.utils.sheet_to_json(sheet, { header:1, defval:"" });
-
-      // ✅ Start with current group so first names don't get skipped
-      let detectedGroup = currentGroup;
-
-      // Track unique additions across groups
-      const addedKeys = new Set();
-      let addedCount = 0;
-
-      // Header columns (if the file has First Name / Last Name titles)
-      let firstCol = null, lastCol = null;
-
-      // --- group detection ONLY from H/G/I columns
-      function detectGroupFromRow(row){
-        const candidates = [row[7], row[6], row[8]]; // H, G, I
-        for(const c of candidates){
-          const raw = normalizeText(c).toUpperCase();
-          if(!raw) continue;
-
-          // Accept "ALPHA", "ALPHA:", "Group: ALPHA"
-          const m = raw.match(/\b(ALPHA|BRAVO|CHARLIE|DELTA|ECHO|FOXTROT|GOLF|HOTEL|INDIA|JULIET|KILO|LONDON)\b/);
-          if(m && validGroups.includes(m[1])){
-            const G = m[1];
-            return G.charAt(0) + G.slice(1).toLowerCase();
-          }
-        }
-        return null;
+      function looksLikeHeaderRow(row){
+        const txt = row.map(c => normalizeText(c).toUpperCase()).join(" ");
+        return BAD_ROW_WORDS.some(w => txt.includes(w));
       }
 
-      // detect where the First/Last columns are (varies between files)
+      function isNamePart(s){
+        s = normalizeText(s);
+        if(!s) return false;
+        if(BAD_ROW_WORDS.includes(s.toUpperCase())) return false;
+
+        // allow letters with accents + apostrophe + hyphen (single token)
+        // NOTE: "Singh" is valid; "Sardar" valid; "McTavish" valid; "O'Neill" valid
+        return /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*$/.test(s);
+      }
+
       function detectHeaderCols(row){
         const u = row.map(c => normalizeText(c).toUpperCase());
         const f = u.findIndex(x => x.includes("FIRST") && x.includes("NAME"));
@@ -1566,7 +1547,6 @@ function uploadExcel(){
         return null;
       }
 
-      // build name using detected columns + multi-part last names
       function buildNameByHeader(row, f, l){
         const first = normalizeText(row[f]);
         if(!isNamePart(first)) return null;
@@ -1579,10 +1559,10 @@ function uploadExcel(){
           lastParts.push(p);
         }
         if(lastParts.length === 0) return null;
+
         return (first + " " + lastParts.join(" ")).replace(/\s+/g," ").trim();
       }
 
-      // fallback scanning adjacent cells strictly
       function buildNameByScan(row){
         for(let i=0; i<row.length-1; i++){
           const a = normalizeText(row[i]);
@@ -1601,22 +1581,82 @@ function uploadExcel(){
         return null;
       }
 
+      function detectGroupFromRow(row){
+        // only check H/G/I-ish positions (your original logic + tolerance)
+        const candidates = [row[7], row[6], row[8]]; // H, G, I
+        for(const c of candidates){
+          const raw = normalizeText(c).toUpperCase();
+          if(!raw) continue;
+
+          // accept "ALPHA", "ALPHA:", "GROUP ALPHA", "GROUP: ALPHA"
+          const m = raw.match(/\b(ALPHA|BRAVO|CHARLIE|DELTA|ECHO|FOXTROT|GOLF|HOTEL|INDIA|JAPAN|KILO|LONDON)\b/);
+          if(m && validGroups.includes(m[1])){
+            const G = m[1];
+            return G.charAt(0) + G.slice(1).toLowerCase();
+          }
+        }
+        return null;
+      }
+
+      // -------------------------------
+      // Heading text (same as before)
+      // -------------------------------
+      const sheetNamesForHeading = ["Club","Clubs","Divisions"];
+      let headingText = "";
+      for(const s of sheetNamesForHeading){
+        const sh = workbook.Sheets[s];
+        if(!sh) continue;
+        const a1 = sh["A1"] ? normalizeText(sh["A1"].v) : "";
+        if(a1.length > 10){ headingText = a1; break; }
+      }
+
+      const headingEl = document.getElementById("excelHeading");
+      if(headingEl){
+        if(headingText){
+          headingEl.textContent = headingText;
+          headingEl.style.display = "block";
+        }else{
+          headingEl.style.display = "none";
+        }
+      }
+
+      // -------------------------------
+      // Read Divisions sheet
+      // -------------------------------
+      const sheet = workbook.Sheets["Divisions"];
+      if(!sheet){
+        toast("Excel format not expected (missing 'Divisions' sheet).");
+        return;
+      }
+
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+      // ✅ fallback group so early rows never get skipped
+      let detectedGroup = currentGroup;
+
+      // ✅ detect first/last header columns (if present)
+      let firstCol = null, lastCol = null;
+
+      // ✅ unique per group + name
+      const addedKeys = new Set();
+      let addedCount = 0;
+
       for(let r=0; r<rows.length; r++){
         const row = rows[r];
         if(!row || row.every(c => !normalizeText(c))) continue;
 
-        // skip header/meta rows like: First Name Last Name Gender Helmet Age
+        // header/meta rows
         if(looksLikeHeaderRow(row)){
           const hdr = detectHeaderCols(row);
           if(hdr){ firstCol = hdr.firstCol; lastCol = hdr.lastCol; }
           continue;
         }
 
-        // update group if marker seen (don’t continue; names might be on same row)
+        // group marker (do NOT continue; sometimes names appear on same row)
         const g = detectGroupFromRow(row);
         if(g) detectedGroup = g;
 
-        // learn header cols if present
+        // learn header cols if we meet them later
         const hdr = detectHeaderCols(row);
         if(hdr){ firstCol = hdr.firstCol; lastCol = hdr.lastCol; }
 
@@ -1628,7 +1668,7 @@ function uploadExcel(){
         if(!name) name = buildNameByScan(row);
         if(!name) continue;
 
-        // clean + validate (must have 2 parts)
+        // clean + must be at least 2 words
         const clean = name.replace(/[0-9]/g,"").replace(/\s+/g," ").trim();
         if(clean.split(" ").filter(Boolean).length < 2) continue;
 
@@ -1641,7 +1681,7 @@ function uploadExcel(){
       }
 
       if(addedCount === 0){
-        toast("Excel looks glitchy or not in expected format. Try again or add names manually.");
+        toast("No skaters detected. Try again or add names manually.");
       }else{
         saveData();
         loadGroupTable();
@@ -1649,12 +1689,21 @@ function uploadExcel(){
       }
 
     }catch(err){
-      console.error(err);
-      toast("Could not read this Excel file. Try a different file.");
+      console.error("Excel upload error:", err);
+
+      // show a helpful message instead of generic
+      const msg = (err && err.message) ? err.message : "Unknown error";
+      toast("Unable to upload Excel: " + msg);
     }
   };
+
+  reader.onerror = function(){
+    toast("Unable to read the file. Please try again.");
+  };
+
   reader.readAsArrayBuffer(file);
 }
+
 
 /* ==================================================
    INITIAL LOAD
